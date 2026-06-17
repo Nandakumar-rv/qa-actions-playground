@@ -1,0 +1,38 @@
+name: QA - First Test Flight
+
+# CONCEPT 1: The TRIGGER
+on: 
+  push:  # Runs every time you push code
+  workflow_dispatch: # Adds a manual "Run" button
+
+# CONCEPT 2: The JOB & RUNNER
+jobs:
+  run-qa-checks:
+    runs-on: ubuntu-latest # The virtual machine
+    
+    # CONCEPT 3: The STEPS
+    steps:
+      # 1. Pull your code into the runner
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Pretend we are installing dependencies
+      - name: Install Dependencies (Simulated)
+        run: echo "npm install completed successfully!"
+
+      # 3. THE QA STEP: Run tests (We are forcing a FAILURE here)
+      - name: Run Regression Tests
+        run: |
+          echo "Starting tests..."
+          echo "Test 1: Login - PASSED"
+          echo "Test 2: Checkout - PASSED"
+          echo "Test 3: Payment - FAILED" 
+          exit 1 # This forces the pipeline to turn RED
+
+      # 4. THE ARTIFACT: Save failure logs (Crucial for QA)
+      - name: Upload Debug Logs
+        uses: actions/upload-artifact@v4
+        if: failure() # This ONLY runs if the previous step fails
+        with:
+          name: failure-logs
+          path: ./ # Uploads the entire folder so you can inspect it
